@@ -118,6 +118,7 @@ public:
 private:
     struct MarkerParticle {
         glm::vec3 position = glm::vec3(0.0, 0.0, 0.0);
+        glm::vec3 velocity = glm::vec3(0.0, 0.0, 0.0);
         GridIndex index = GridIndex(0, 0, 0);
 
         MarkerParticle() : position(0.0, 0.0, 0.0), 

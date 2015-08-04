@@ -2443,6 +2443,7 @@ void FluidSimulation::_advanceRangeOfMarkerParticles(int startIdx, int endIdx, d
         mp = _markerParticles[idx];
 
         vi = _getVelocityAtPosition(mp.position);
+        _markerParticles[idx].velocity = vi;
         p = _RK4(mp.position, vi, dt);
 
         if (!Grid3d::isPositionInGrid(p.x, p.y, p.z, _dx, _isize, _jsize, _ksize)) {
@@ -2577,7 +2578,7 @@ void FluidSimulation::_stepFluid(double dt) {
     _logfile.log("Apply Pressure:              \t", timer9.getTime(), 4);
 
     timer10.start();
-    _updateDiffuseMaterial(dt);
+    //_updateDiffuseMaterial(dt);
     timer10.stop();
 
     _logfile.log("Update Diffuse Material:     \t", timer10.getTime(), 4);
@@ -2627,7 +2628,16 @@ void FluidSimulation::_stepFluid(double dt) {
 }
 
 double FluidSimulation::_calculateNextTimeStep() {
-    double maxu = _MACVelocity.evaluateMaximumVelocityMagnitude();
+    double maxu = 0.0;
+    for (int i = 0; i < _markerParticles.size(); i++) {
+        glm::vec3 v = _markerParticles[i].velocity;
+        double vsq = glm::dot(vsq, vsq);
+        if (vsq > maxu) {
+            maxu = vsq;
+        }
+    }
+    maxu = sqrt(maxu);
+
     double timeStep = _CFLConditionNumber*_dx / maxu;
 
     timeStep = (double)fmaxf((float)_minTimeStep, (float)timeStep);
